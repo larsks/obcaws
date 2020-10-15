@@ -66,7 +66,6 @@ log 2 "bucket_host = $bucket_host"
 log 2 "bucket_name = $bucket_name"
 log 2 "endpoint = $endpoint"
 
-
 cat >$tempdir/credentials <<EOF
 [default]
 AWS_ACCESS_KEY_ID=$aws_access_key_id
@@ -75,7 +74,7 @@ EOF
 
 args=()
 for arg in "$@"; do
-	args+=(${arg/BUCKET/$bucket_name})
+	args+=(${arg//BUCKET/$bucket_name})
 done
 
 podman run --rm \
