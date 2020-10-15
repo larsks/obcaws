@@ -43,6 +43,10 @@ podman run --rm \
   ls images-eb819852-3a1f-4be3-96ec-eada6b6327eb
 ```
 
-The first volume in this command line (`-v .awsoRs3VH:/root/.aws`) contains
-AWS-style credentials extracted from the secret that is associated with
-your `OBC` resource.
+The first volume option in this command line (`-v .awsoRs3VH:/root/.aws`)
+contains AWS-style credentials extracted from the secret that is associated
+with your `OBC` resource.
+
+The second volume option exposes `$PWD` on the host as `$PWD` inside the
+container,  and sets the current working directory to that directory. This
+means you can only access files/directories that are contained in `$PWD`.
