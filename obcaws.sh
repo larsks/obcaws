@@ -77,6 +77,7 @@ for arg in "$@"; do
 	args+=(${arg//BUCKET/$bucket_name})
 done
 
+log 1 "running aws-cli"
 podman run --rm \
 	-v $tempdir:/root/.aws \
 	-v $PWD:$PWD -w $PWD \
