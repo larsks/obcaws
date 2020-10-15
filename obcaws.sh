@@ -36,6 +36,8 @@ obc=$1
 api=$2
 shift 2
 
+# extract bucket_host from bucket_host_route if provided
+# (and if bucket_host is not set explicitly)
 if [[ -z $bucket_host ]] && [[ $bucket_host_route ]]; then
 	bucket_host_ns=${bucket_host_route%/*}
 	bucket_host_route=${bucket_host_route#*/}
@@ -53,10 +55,14 @@ kubectl ${namespace:+-n $namespace} get secret $obc -o json > $tempdir/secret.js
 log 1 "getting obc config"
 kubectl ${namespace:+-n $namespace} get configmap $obc -o json > $tempdir/config.json
 
+# if bucket_host was not set explicitly or via bucket_host_route, set it
+# to the internal hostname provided in the configmap. This will only be
+# useful if you're running inside openshift.
 if [[ -z $bucket_host ]]; then
 	bucket_host=$(jq -r .data.BUCKET_HOST $tempdir/config.json)
 fi
 
+# extract the bucket name and credentials
 bucket_name=$(jq -r .data.BUCKET_NAME $tempdir/config.json)
 aws_access_key_id=$(jq -r '.data.AWS_ACCESS_KEY_ID|@base64d' $tempdir/secret.json)
 aws_secret_access_key=$(jq -r '.data.AWS_SECRET_ACCESS_KEY|@base64d' $tempdir/secret.json)
@@ -72,6 +78,7 @@ AWS_ACCESS_KEY_ID=$aws_access_key_id
 AWS_SECRET_ACCESS_KEY=$aws_secret_access_key
 EOF
 
+# replace BUCKET in all command line arguments
 args=()
 for arg in "$@"; do
 	args+=(${arg//BUCKET/$bucket_name})
